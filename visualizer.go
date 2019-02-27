@@ -42,6 +42,7 @@ func split(img image.Image, n int) *gif.GIF {
 
 func createGif(this js.Value, args []js.Value) interface{} {
 	raw := args[0].String()
+	numFrames := args[1].Int()
 	inBuff := bytes.NewBufferString(raw)
 
 	r := base64.NewDecoder(base64.StdEncoding, inBuff)
@@ -52,7 +53,7 @@ func createGif(this js.Value, args []js.Value) interface{} {
 		return ""
 	}
 
-	generatedGif := split(img, 4)
+	generatedGif := split(img, numFrames)
 
 	var outBuff bytes.Buffer
 	w := base64.NewEncoder(base64.StdEncoding, &outBuff)

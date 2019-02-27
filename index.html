@@ -40,6 +40,8 @@
 
     #input {
       grid-area: input;
+      display: flex;
+      flex-direction: column;
     }
 
     #output {
@@ -54,6 +56,8 @@
   <div id="app">
     <div id="container">
       <div id="input">
+        <label for="num-frames"># Frames</label>
+        <input type="number" id="num-frames" v-model.number="numFrames">
         <input type="file" accept="image/*" @change="onChange($event)">
       </div>
       <img id="output" :src="'data:image/gif;base64,' + img">
@@ -65,18 +69,20 @@
     new Vue({
       el: "#app",
       data: {
+        numFrames: 4,
         img: ""
       },
       methods: {
         async onChange(event) {
-          var file = event.target.files[0];
-          var reader = new FileReader();
+          const file = event.target.files[0];
+          const reader = new FileReader();
+          const numFrames = this.numFrames;
 
           this.img = await new Promise((resolve, reject) => {
             reader.onload = function (e) {
               const bytes = new Uint8Array(e.target.result);
               const base64 = btoa(String.fromCharCode(...bytes));
-              resolve(window.createGif(base64, 4));
+              resolve(window.createGif(base64, numFrames));
             };
 
             reader.readAsArrayBuffer(file);
