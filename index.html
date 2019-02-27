@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <script src="wasm_exec.js"></script>
+  <script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+      go.run(result.instance);
+    });
+  </script>
+
+  <style>
+    html,
+    body,
+    #app,
+    #container {
+      height: 100%;
+    }
+
+    #container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: 'input output';
+      align-items: center;
+      justify-items: center;
+    }
+
+    @media screen and (max-width: 680px) {
+      #container {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+        grid-template-areas: 'input''output';
+        align-items: center;
+        justify-items: center;
+      }
+    }
+
+    #input {
+      grid-area: input;
+    }
+
+    #output {
+      grid-area: output;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div id="container">
+      <div id="input">
+        <input type="file" accept="image/*" @change="onChange($event)">
+      </div>
+      <img id="output" :src="'data:image/gif;base64,' + img">
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        img: ""
+      },
+      methods: {
+        async onChange(event) {
+          var file = event.target.files[0];
+          var reader = new FileReader();
+
+          this.img = await new Promise((resolve, reject) => {
+            reader.onload = function (e) {
+              const bytes = new Uint8Array(e.target.result);
+              const base64 = btoa(String.fromCharCode(...bytes));
+              resolve(window.createGif(base64, 4));
+            };
+
+            reader.readAsArrayBuffer(file);
+          });
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
